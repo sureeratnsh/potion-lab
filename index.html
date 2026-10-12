@@ -1,0 +1,1216 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Potion Lab - Magical Sorting Adventure</title>
+
+<style>
+/* =========================
+   สีหลักและรูปแบบพื้นฐาน
+   ========================= */
+:root {
+  --ink: #34264b;
+  --muted: #756986;
+  --purple: #8a68c8;
+  --pink: #ffb8d0;
+  --mint: #b9ead6;
+  --gold: #ffd879;
+  --line: #eadff3;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 10% 10%, #fff0f7, transparent 30%),
+    radial-gradient(circle at 90% 15%, #e5f8ef, transparent 30%),
+    #f7f1ff;
+}
+
+button {
+  font: inherit;
+  font-weight: 750;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 13px;
+  cursor: pointer;
+  transition: .15s;
+}
+
+button:hover { filter: brightness(1.05); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+
+.primary { background: var(--purple); color: white; }
+.secondary { background: #f0e8ff; color: #5d438b; }
+.soft { background: white; color: var(--ink); border: 1px solid var(--line); }
+
+.shell { max-width: 1000px; margin: auto; padding: 22px 16px 40px; }
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.brand { display: flex; align-items: center; gap: 12px; }
+
+.logo {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  background: #e8d9ff;
+  border-radius: 16px;
+  font-size: 27px;
+}
+
+h1 { font-size: 25px; margin: 0; }
+.brand p { font-size: 12px; color: var(--muted); margin: 2px 0; }
+
+.pill {
+  padding: 9px 13px;
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: 30px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.panel {
+  background: #ffffffed;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: clamp(17px, 4vw, 30px);
+  box-shadow: 0 12px 35px #6e4e8b12;
+}
+
+.hidden { display: none !important; }
+
+/* =========================
+   หน้าเริ่มเกม
+   ========================= */
+.hero {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 22px;
+  align-items: center;
+}
+
+.eyebrow {
+  color: var(--purple);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.hero h2 { font-size: clamp(30px, 5vw, 46px); line-height: 1.15; }
+.hero h2 span { color: #9567cc; }
+.hero p { color: var(--muted); line-height: 1.8; }
+
+.hero-art {
+  min-height: 230px;
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  background: linear-gradient(145deg, #f4eaff, #e7faf1);
+  font-size: 90px;
+  position: relative;
+}
+
+.sparkles { position: absolute; font-size: 25px; }
+.s1 { top: 15%; left: 15%; }
+.s2 { top: 20%; right: 15%; }
+.s3 { bottom: 15%; left: 20%; }
+.s4 { bottom: 15%; right: 20%; }
+
+.rules {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.rule {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 15px;
+}
+
+.rule .emoji { font-size: 25px; }
+.rule b { display: block; margin: 5px 0; }
+.rule p { color: var(--muted); font-size: 13px; line-height: 1.6; margin: 0; }
+
+.small { color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+/* =========================
+   ส่วนหัวของหน้าจอเล่นเกม
+   ========================= */
+.game-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.leveltag {
+  display: inline-block;
+  background: #f1e8ff;
+  color: #7651b1;
+  padding: 7px 11px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.game-title { margin: 8px 0; font-size: clamp(22px, 4vw, 30px); }
+
+.stats { display: flex; gap: 7px; flex-wrap: wrap; }
+
+.stat {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 9px 11px;
+  font-size: 13px;
+}
+
+.stat b { margin-left: 4px; }
+
+.progress {
+  height: 8px;
+  background: #eee5f5;
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 14px 0 20px;
+}
+
+.progress div {
+  height: 100%;
+  background: linear-gradient(90deg, #9b76db, #73cfad);
+  transition: width .3s;
+}
+
+.instructions {
+  background: #fbf7ff;
+  border: 1px solid #eee2fb;
+  border-radius: 15px;
+  padding: 14px;
+  line-height: 1.7;
+  margin: 12px 0;
+}
+
+.instructions strong { color: #7651b1; }
+
+/* =========================
+   ชั้นวางขวดโพชั่น
+   ========================= */
+.shelf {
+  background: linear-gradient(#f9f3ff, white);
+  border: 1px dashed #d8c6ef;
+  border-radius: 19px;
+  padding: 18px 10px;
+  margin: 18px 0;
+}
+
+.shelf-label {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.bottles {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(5px, 1.5vw, 14px);
+  min-height: 145px;
+}
+
+.bottle {
+  position: relative;
+  width: clamp(43px, 8vw, 70px);
+  height: 125px;
+  padding: 0;
+  background: transparent;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-direction: column;
+}
+
+.bottle .cork {
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  width: 27px;
+  height: 13px;
+  background: #c68d68;
+  border: 2px solid #aa7659;
+  border-radius: 5px 5px 2px 2px;
+}
+
+.bottle .neck {
+  position: absolute;
+  top: 11px;
+  width: 27px;
+  height: 20px;
+  border: 2px solid #b6a5d1;
+  border-bottom: 0;
+  background: #ffffffa8;
+  border-radius: 5px 5px 0 0;
+}
+
+/* ขอบขวดให้เข้มขึ้นและเปลี่ยนสีได้อย่างนุ่มนวล */
+.bottle .glass {
+  position: absolute;
+  top: 28px;
+  bottom: 0;
+  width: clamp(40px, 7vw, 62px);
+  border: 3px solid #9b86bd;
+  border-radius: 12px 12px 17px 17px;
+  background: #ffffffa8;
+  overflow: hidden;
+  transition: border-color .2s, outline .2s, box-shadow .2s;
+}
+
+.bottle .liquid {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70%;
+  background: var(--liq);
+  border-radius: 5px 5px 12px 12px;
+}
+
+.bottle .number {
+  z-index: 2;
+  margin-bottom: 27px;
+  font-size: 19px;
+  font-weight: 950;
+  color: #34264b;
+  text-shadow: 0 1px white;
+}
+
+.bottle .index {
+  position: absolute;
+  bottom: -22px;
+  font-size: 11px;
+  color: #8b7a9f;
+}
+
+/* ขวดที่กำลังถูกเปรียบเทียบ */
+.bottle.compare .glass {
+  outline: 3px solid #9470e0;
+  outline-offset: 2px;
+  box-shadow: 0 0 10px #9470e050;
+}
+
+/* ขวดที่ผู้เล่นเลือก */
+.bottle.selected .glass {
+  outline: 4px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* ขวดที่อยู่ในตำแหน่งเรียงถูกต้อง */
+.bottle.sorted .glass {
+  border: 3px solid #249b68;
+  outline: 3px solid #65d6a0;
+  outline-offset: 2px;
+  box-shadow: 0 0 12px #65d6a080;
+  background: #edfff5a8;
+}
+
+.shelf-base {
+  height: 10px;
+  max-width: 600px;
+  margin: 12px auto 0;
+  border-radius: 20px;
+  background: linear-gradient(#e5d8f1, #d1bce5);
+}
+
+.section-label { font-size: 14px; font-weight: 900; margin-top: 16px; }
+
+.action-row { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 14px; }
+
+.feedback {
+  background: #f5f0ff;
+  color: #624a89;
+  border-radius: 14px;
+  padding: 13px;
+  margin-top: 15px;
+  min-height: 47px;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.feedback.good { background: #e8f8ef; color: #276c50; }
+.feedback.bad { background: #fff0f3; color: #9a3f5c; }
+
+/* =========================
+   หน้าจบเกม
+   ========================= */
+.end { text-align: center; padding: 30px 10px; }
+.end .big { font-size: 75px; }
+.end h2 { font-size: clamp(27px, 5vw, 40px); }
+.scorebig { font-size: 34px; font-weight: 950; color: #805bb8; }
+
+.level-list {
+  max-width: 440px;
+  margin: 20px auto;
+  padding: 15px;
+  text-align: left;
+  background: #fbf8ff;
+  border-radius: 16px;
+}
+
+.level-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.level-list div:last-child { border: 0; }
+
+footer { text-align: center; color: #9889a7; font-size: 12px; margin-top: 20px; }
+
+/* ปรับหน้าจอสำหรับมือถือ */
+@media(max-width: 700px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-art { min-height: 170px; font-size: 70px; }
+  .rules { grid-template-columns: 1fr; }
+  .rule { display: flex; gap: 12px; align-items: start; }
+  .rule .emoji { font-size: 27px; }
+  .panel { border-radius: 20px; }
+}
+</style>
+</head>
+
+<body>
+<div class="shell">
+
+<header>
+  <div class="brand">
+    <div class="logo">🧪</div>
+    <div>
+      <h1>Potion Lab</h1>
+      <p>ห้องทดลองเวทมนตร์ · ผจญภัยของนักปรุงยา</p>
+    </div>
+  </div>
+  <div class="pill">✨ คะแนน <span id="topScore">0</span></div>
+</header>
+
+<main>
+
+<!-- =========================
+     หน้าเริ่มเกม
+     ========================= -->
+<section id="startScreen" class="panel">
+  <div class="hero">
+    <div>
+      <div class="eyebrow">WELCOME, LITTLE ALCHEMIST!</div>
+      <h2>ปรุงโพชั่นให้เป๊ะ<br><span>พิชิตห้องทดลองเวทมนตร์</span></h2>
+      <p>
+        ห้องทดลองเวทมนตร์วุ่นวายไปหมด!
+        ช่วยเรียงขวดโพชั่นจากค่าพลังน้อยไปมาก
+        ผ่าน 4 ภารกิจเพื่อเป็นนักปรุงยาอัจฉริยะ
+      </p>
+      <button class="primary" id="startBtn">เริ่มผจญภัย ✨</button>
+    </div>
+
+    <div class="hero-art">
+      <span class="sparkles s1">⭐</span>
+      <span class="sparkles s2">✨</span>
+      <span class="sparkles s3">🌿</span>
+      <span class="sparkles s4">💫</span>
+      ⚗️
+    </div>
+  </div>
+
+  <div class="rules">
+    <div class="rule">
+      <div class="emoji">🫧</div>
+      <b>ฟองเวทมนตร์</b>
+      <p>เปรียบเทียบขวดที่อยู่ติดกัน แล้วเลือกว่าจะสลับหรือข้าม</p>
+    </div>
+
+    <div class="rule">
+      <div class="emoji">🔎</div>
+      <b>ตามหาขวดพลังต่ำสุด</b>
+      <p>ค้นหาขวดที่มีค่าน้อยที่สุด แล้วเลือกไปวางตำแหน่งถัดไป</p>
+    </div>
+
+    <div class="rule">
+      <div class="emoji">🏆</div>
+      <b>เป้าหมาย</b>
+      <p>เรียงค่าพลังจากน้อยไปมาก เก็บคะแนนและผ่านทุกภารกิจ</p>
+    </div>
+  </div>
+
+  <p class="small">
+    ตัวเลขจะสุ่มใหม่ทุกครั้งที่เริ่มเกมหรือเริ่มด่านใหม่
+    ตัวเลขในชุดเดียวกันจะไม่ซ้ำกัน
+  </p>
+</section>
+
+<!-- =========================
+     หน้าเล่นเกม
+     ========================= -->
+<section id="gameScreen" class="panel hidden">
+  <div class="game-head">
+    <div>
+      <span id="levelTag" class="leveltag">ด่าน 1 / 4</span>
+      <h2 id="levelTitle" class="game-title"></h2>
+    </div>
+
+    <!-- แสดงคะแนน ขั้นตอน ดาว และหัวใจ -->
+    <div class="stats">
+      <div class="stat">คะแนน <b id="score">0</b></div>
+      <div class="stat">ขั้นตอน <b id="moves">0</b></div>
+      <div class="stat">ดาว <b id="stars">☆☆☆☆</b></div>
+      <div class="stat">หัวใจ <b id="hearts">❤️❤️❤️</b></div>
+      <button id="exitBtn" class="soft" type="button">🚪 ออกจากเกม</button>
+    </div>
+  </div>
+
+  <div class="progress"><div id="progressBar"></div></div>
+
+  <div id="instructions" class="instructions"></div>
+
+  <div class="shelf">
+    <div class="shelf-label">🧪 ชั้นวางโพชั่น — เรียงค่าพลังจากน้อย → มาก</div>
+    <div id="bottles" class="bottles"></div>
+    <div class="shelf-base"></div>
+  </div>
+
+  <!-- พื้นที่แสดงปุ่มและคำแนะนำของ Sorting Algorithm -->
+  <div id="algorithmArea"></div>
+
+  <!-- โบนัสคำถามท้ายด่าน -->
+  <div id="bonusArea" class="instructions hidden">
+    <strong>✨ โบนัสความรู้ปรุงยา · +10 คะแนน</strong><br>
+    ด่านนี้ใช้หลักการ Sorting แบบใด?
+
+    <div class="action-row">
+      <button id="bonusBubbleBtn" class="soft" type="button">Bubble Sort</button>
+      <button id="bonusSelectionBtn" class="soft" type="button">Selection Sort</button>
+      <button id="bonusInsertionBtn" class="soft" type="button">Insertion Sort</button>
+    </div>
+
+    <div class="action-row">
+      <button id="submitBonusBtn" class="primary" type="button">ยืนยันคำตอบ</button>
+    </div>
+
+    <p id="bonusFeedback" class="small" role="status" aria-live="polite"></p>
+  </div>
+
+  <div id="feedback" class="feedback" role="status" aria-live="polite">
+    พร้อมแล้ว! ทำตามคำแนะนำของด่านนี้
+  </div>
+
+  <div class="action-row">
+    <button id="resetBtn" class="soft">↻ เริ่มด่านนี้ใหม่</button>
+    <button id="nextBtn" class="primary hidden">ด่านถัดไป →</button>
+  </div>
+</section>
+
+<!-- =========================
+     หน้าสรุปผล ชนะ ล้มเหลว หรือออกกลางคัน
+     ========================= -->
+<section id="endScreen" class="panel hidden">
+  <div class="end">
+    <div class="big" id="endEmoji">🏆</div>
+    <div class="eyebrow" id="endEyebrow">POTION MASTER CERTIFIED</div>
+    <h2 id="endTitle">ปรุงโพชั่นสำเร็จแล้ว!</h2>
+    <p id="endMessage">เธอผ่านครบทั้ง 4 ภารกิจแล้ว</p>
+
+    <div class="scorebig"><span id="finalScore">0</span> คะแนน</div>
+    <div id="levelResults" class="level-list"></div>
+    <p id="rankText"></p>
+
+    <button id="playAgainBtn" class="primary">เล่นอีกครั้ง 🔁</button>
+    <button id="reviewBtn" class="secondary">กลับหน้าหลัก</button>
+  </div>
+</section>
+
+</main>
+<footer>ห้องทดลองโพชั่น ✦ เปิดเล่นในเบราว์เซอร์ได้ ไม่ต้องติดตั้ง</footer>
+</div>
+
+<script>
+// =====================================================
+// Potion Lab
+// Bubble Sort: เปรียบเทียบข้อมูลที่อยู่ติดกัน
+// แล้วสลับเมื่อค่าทางซ้ายมากกว่าค่าทางขวา
+//
+// Selection Sort: หาค่าต่ำที่สุดในส่วนที่ยังไม่เรียง
+// แล้วสลับมาไว้ตำแหน่งแรกของส่วนนั้น
+// =====================================================
+
+// รายละเอียดของแต่ละด่าน
+const LEVELS = [
+  {
+    name: "ด่าน 1: ฟองเวทมนตร์",
+    algo: "bubble",
+    count: 5,
+    desc: "ภารกิจฝึกพื้นฐาน: เปรียบเทียบขวดที่อยู่ติดกัน แล้วตัดสินใจเองว่าจะสลับหรือข้ามคู่นี้"
+  },
+  {
+    name: "ด่าน 2: สวนโพชั่น",
+    algo: "selection",
+    count: 5,
+    desc: "ภารกิจค้นหาขวด: เลือกขวดที่มีค่าต่ำที่สุดในส่วนที่ยังไม่เรียง เพื่อนำไปวางในตำแหน่งถัดไป"
+  },
+  {
+    name: "ด่าน 3: ทางเดินฟองสบู่",
+    algo: "bubble",
+    count: 7,
+    desc: "ภารกิจท้าทาย: มีขวดมากขึ้น เลือกสลับหรือข้ามให้ถูกต้องทุกคู่ เพื่อทำคะแนนให้ได้มากที่สุด"
+  },
+  {
+    name: "ด่าน 4: ห้องปรุงยามาสเตอร์",
+    algo: "selection",
+    count: 7,
+    desc: "ภารกิจสุดท้าย: เลือกค่าต่ำสุดจากส่วนที่ยังไม่เรียง ด่านนี้มีคำใบ้ให้ใช้ได้เพียง 1 ครั้ง"
+  }
+];
+
+// ตัวแปรหลักที่เก็บสถานะเกม
+const $ = id => document.getElementById(id);
+
+let levelIndex = 0;
+let score = 0;
+let levelStartScore = 0;
+let moves = 0;
+let values = [];
+let pass = 0;
+let j = 0;
+let selectStart = 0;
+let mistakes = 0;
+let hearts = 3; // หัวใจเริ่มต้นของแต่ละด่าน
+let hintsUsed = 0;
+let done = false;
+let levelScores = []; // เก็บผลเฉพาะด่านที่ผ่านแล้ว
+
+// ตัวแปรระบบโบนัส
+let bonusChoice = null;
+let bonusAnswered = false;
+let totalBonus = 0;
+
+// สุ่มตัวเลขไม่ซ้ำกันในชุดเดียวกัน
+function generateRandomValues(count) {
+  const numbers = Array.from({ length: 9 }, (_, i) => i + 1);
+
+  // Fisher-Yates Shuffle: สุ่มสลับตำแหน่งข้อมูล
+  for (let i = numbers.length - 1; i > 0; i--) {
+    const k = Math.floor(Math.random() * (i + 1));
+    [numbers[i], numbers[k]] = [numbers[k], numbers[i]];
+  }
+
+  return numbers.slice(0, count);
+}
+
+// เริ่มเกมใหม่ตั้งแต่ด่านแรก
+function startGame() {
+  levelIndex = 0;
+  score = 0;
+  totalBonus = 0;
+  levelScores = [];
+
+  $("topScore").textContent = score;
+  $("startScreen").classList.add("hidden");
+  $("endScreen").classList.add("hidden");
+  $("gameScreen").classList.remove("hidden");
+
+  loadLevel();
+}
+
+// เตรียมข้อมูลและรีเซ็ตสถานะต่าง ๆ ก่อนเริ่มด่าน
+function loadLevel() {
+  const level = LEVELS[levelIndex];
+
+  // สุ่มชุดใหม่ทุกครั้งที่โหลดด่าน
+  values = generateRandomValues(level.count);
+
+  moves = 0;
+  pass = 0;
+  j = 0;
+  selectStart = 0;
+  mistakes = 0;
+  hearts = 3; // ฟื้นหัวใจเต็มทุกครั้งที่เริ่มด่านใหม่
+  hintsUsed = 0;
+  done = false;
+
+  // รีเซ็ตคำถามโบนัสของด่านปัจจุบัน
+  bonusChoice = null;
+  bonusAnswered = false;
+
+  $("bonusArea").classList.add("hidden");
+  $("bonusFeedback").textContent = "";
+  $("bonusFeedback").style.color = "";
+
+  ["bonusBubbleBtn", "bonusSelectionBtn", "bonusInsertionBtn"].forEach(id => {
+    $(id).disabled = false;
+    $(id).className = "soft";
+  });
+
+  $("submitBonusBtn").disabled = false;
+  $("submitBonusBtn").classList.remove("hidden");
+
+  levelStartScore = score;
+
+  $("levelTag").textContent = `ด่าน ${levelIndex + 1} / ${LEVELS.length}`;
+  $("levelTitle").textContent = level.name;
+  $("instructions").textContent = level.desc;
+  $("score").textContent = score;
+  $("moves").textContent = moves;
+  $("progressBar").style.width =
+    `${levelIndex / LEVELS.length * 100}%`;
+
+  $("nextBtn").classList.add("hidden");
+  $("nextBtn").textContent = levelIndex === LEVELS.length - 1
+    ? "ดูผลลัพธ์ทั้งหมด 🏆"
+    : "ด่านถัดไป →";
+
+  $("resetBtn").disabled = false;
+
+  renderControls();
+  updateStats();
+
+  setFeedback(
+    level.algo === "bubble"
+      ? "เริ่มจากคู่ซ้ายสุด แล้วเลือกการกระทำด้วยตัวเอง"
+      : "ค้นหาค่าต่ำที่สุดในส่วนที่ยังไม่เรียง",
+    ""
+  );
+}
+
+// กำหนดสีของน้ำยาแต่ละค่า
+function colorFor(value) {
+  const colors = {
+    1: "#ff91b8",
+    2: "#b49bff",
+    3: "#79d9bd",
+    4: "#ffd16e",
+    5: "#80c8ff",
+    6: "#ffad7a",
+    7: "#b7df7b",
+    8: "#d89be9",
+    9: "#f2a0d8"
+  };
+  return colors[value];
+}
+
+// วาดขวดและแสดงว่าขวดใดเรียงถูกตำแหน่งแล้ว
+function renderBottles(
+  highlights = [],
+  sortedPrefix = 0,
+  sortedSuffix = values.length
+) {
+  const box = $("bottles");
+  box.innerHTML = "";
+
+  values.forEach((value, i) => {
+    const bottle = document.createElement("button");
+    bottle.className = "bottle";
+
+    // เพิ่มขอบสีเขียวให้ส่วนที่เรียงถูกแล้ว
+    if (i < sortedPrefix || i >= sortedSuffix) {
+      bottle.classList.add("sorted");
+    }
+
+    // ไฮไลต์คู่ที่กำลังเปรียบเทียบ
+    if (highlights.includes(i)) {
+      bottle.classList.add("compare");
+    }
+
+    bottle.style.setProperty("--liq", colorFor(value));
+    bottle.setAttribute("aria-label", `ขวดตำแหน่ง ${i + 1} ค่าพลัง ${value}`);
+
+    bottle.innerHTML = `
+      <span class="cork"></span>
+      <span class="neck"></span>
+      <span class="glass">
+        <span class="liquid" style="background:${colorFor(value)}"></span>
+      </span>
+      <span class="number">${value}</span>
+      <span class="index">${i + 1}</span>
+    `;
+
+    // Selection Sort ให้คลิกเลือกขวดได้เฉพาะส่วนที่ยังไม่เรียง
+    if (LEVELS[levelIndex].algo === "selection" && !done && i >= selectStart) {
+      bottle.addEventListener("click", () => chooseMinimum(i));
+    } else {
+      bottle.disabled = true;
+    }
+
+    box.appendChild(bottle);
+  });
+}
+
+// แสดงปุ่มและคำแนะนำตามอัลกอริทึมของด่าน
+function renderControls() {
+  const area = $("algorithmArea");
+  area.innerHTML = "";
+
+  // ถ้าด่านเสร็จแล้ว ให้แสดงสถานะสำเร็จ
+  if (done) {
+    area.innerHTML = `
+      <div class="instructions">
+        <strong>✨ ภารกิจสำเร็จ!</strong>
+        ข้อมูลเรียงจากน้อยไปมากครบแล้ว
+      </div>`;
+    renderBottles([], values.length, values.length);
+    return;
+  }
+
+  const level = LEVELS[levelIndex];
+
+  // ส่วนควบคุม Bubble Sort
+  if (level.algo === "bubble") {
+    const a = values[j];
+    const b = values[j + 1];
+
+    area.innerHTML = `
+      <div class="section-label">
+        🫧 รอบที่ ${pass + 1} · คู่ที่ ${j + 1}
+      </div>
+      <div class="instructions">
+        เปรียบเทียบ <strong>${a}</strong> กับ <strong>${b}</strong><br>
+        <span class="small">เลือกเองว่าจะสลับขวดหรือข้ามคู่นี้</span>
+      </div>
+      <div class="action-row">
+        <button id="swapBtn" class="primary">🔄 สลับขวด</button>
+        <button id="skipBtn" class="secondary">⏭️ ข้ามคู่นี้</button>
+      </div>
+    `;
+
+    $("swapBtn").onclick = () => bubbleAction("swap");
+    $("skipBtn").onclick = () => bubbleAction("skip");
+
+    // ส่วนท้ายของ Bubble Sort เรียงถูกตำแหน่งแล้ว
+    renderBottles([j, j + 1], 0, values.length - pass);
+
+  } else {
+    // ส่วนควบคุม Selection Sort
+    const remaining = values.slice(selectStart);
+
+    area.innerHTML = `
+      <div class="section-label">
+        🔎 ตำแหน่งถัดไป: ${selectStart + 1}
+      </div>
+      <div class="instructions">
+        ค่าที่ยังไม่เรียง:
+        <strong>${remaining.join(" · ")}</strong><br>
+        คลิกขวดที่มีค่าน้อยที่สุดในกลุ่มนี้
+      </div>
+      <div class="action-row">
+        <button id="hintBtn" class="secondary">💡 ขอคำใบ้</button>
+      </div>
+      <p id="hintStatus" class="small"></p>
+    `;
+
+    const hintBtn = $("hintBtn");
+    const hintStatus = $("hintStatus");
+
+    if (levelIndex === 3 && hintsUsed >= 1) {
+      hintBtn.disabled = true;
+      hintStatus.textContent = "ใช้คำใบ้ครบแล้ว";
+    }
+
+    // แสดงคำใบ้โดยไม่หักคะแนนหรือหัวใจ
+    hintBtn.onclick = () => {
+      if (levelIndex === 3 && hintsUsed >= 1) return;
+
+      const minimum = Math.min(...values.slice(selectStart));
+      hintsUsed++;
+
+      setFeedback(`คำใบ้: ค่าต่ำที่สุดในส่วนนี้คือ ${minimum}`, "");
+      hintStatus.textContent = levelIndex === 3
+        ? `ใช้คำใบ้แล้ว ${hintsUsed}/1 ครั้ง`
+        : "ใช้คำใบ้แล้ว";
+
+      if (levelIndex === 3) hintBtn.disabled = true;
+    };
+
+    renderBottles([], selectStart);
+  }
+}
+
+// แสดงข้อความตอบกลับ
+function setFeedback(message, type) {
+  const feedback = $("feedback");
+  feedback.textContent = message;
+  feedback.className = "feedback" + (type ? " " + type : "");
+}
+
+// อัปเดตคะแนน ดาว และหัวใจบนหน้าจอ
+function updateStats() {
+  $("score").textContent = score;
+  $("topScore").textContent = score;
+  $("moves").textContent = moves;
+
+  // ดาวได้จากจำนวนด่านที่ผ่านสำเร็จเท่านั้น
+  const earnedStars = levelScores.length;
+  $("stars").textContent =
+    "★".repeat(earnedStars) +
+    "☆".repeat(LEVELS.length - earnedStars);
+
+  // แสดงหัวใจที่เหลือในด่านปัจจุบัน
+  $("hearts").textContent =
+    "❤️".repeat(hearts) +
+    "🤍".repeat(3 - hearts);
+}
+
+// จัดการเมื่อผู้เล่นตอบผิด
+// ผิดหนึ่งครั้งเสียหนึ่งหัวใจและสามคะแนน
+function registerMistake() {
+  mistakes++;
+  hearts--;
+  score = Math.max(0, score - 3);
+
+  updateStats();
+
+  // ถ้าหัวใจหมด ให้จบเกมทันที
+  if (hearts <= 0) {
+    failGame();
+    return true;
+  }
+
+  return false;
+}
+
+// Bubble Sort: ผู้เล่นเลือกว่าจะสลับหรือข้าม
+function bubbleAction(choice) {
+  if (done) return;
+
+  const a = values[j];
+  const b = values[j + 1];
+  const shouldSwap = a > b;
+
+  moves++;
+
+  const correct =
+    (choice === "swap" && shouldSwap) ||
+    (choice === "skip" && !shouldSwap);
+
+  // ถ้าตัดสินใจผิด ให้หักหัวใจและคะแนน
+  if (!correct) {
+    if (registerMistake()) return;
+
+    setFeedback(
+      choice === "swap"
+        ? `ยังไม่ถูกนะ ${a} ≤ ${b} คู่นี้ไม่จำเป็นต้องสลับ ลองใหม่ได้เลย`
+        : `ยังไม่ถูกนะ ${a} > ${b} ต้องสลับเพื่อให้เรียงถูก ลองใหม่ได้เลย`,
+      "bad"
+    );
+
+    // ไม่เลื่อนไปคู่ถัดไป ให้ผู้เล่นลองคิดใหม่
+    renderControls();
+    return;
+  }
+
+  // ดำเนินการเมื่อคำตอบถูก
+  if (choice === "swap") {
+    [values[j], values[j + 1]] = [values[j + 1], values[j]];
+    score += 10;
+
+    setFeedback(`ถูกต้อง! ${a} > ${b} จึงต้องสลับขวด +10 คะแนน`, "good");
+  } else {
+    score += 5;
+
+    setFeedback(`ถูกต้อง! ${a} ≤ ${b} คู่นี้ไม่ต้องสลับ +5 คะแนน`, "good");
+  }
+
+  j++;
+
+  // จบรอบแล้วเริ่มรอบถัดไป
+  if (j >= values.length - 1 - pass) {
+    pass++;
+    j = 0;
+
+    // เมื่อครบทุก pass ให้จบด่าน
+    if (pass >= values.length - 1) {
+      updateStats();
+      finishLevel();
+      return;
+    }
+  }
+
+  updateStats();
+  renderControls();
+}
+
+// Selection Sort: เลือกค่าต่ำที่สุดในส่วนที่ยังไม่เรียง
+function chooseMinimum(index) {
+  if (done || index < selectStart) return;
+
+  const minimum = Math.min(...values.slice(selectStart));
+  moves++;
+
+  // ถ้าเลือกค่าไม่ต่ำที่สุด ให้เสียหัวใจ
+  if (values[index] !== minimum) {
+    if (registerMistake()) return;
+
+    setFeedback(
+      `ยังไม่ใช่! ${values[index]} ไม่ใช่ค่าต่ำที่สุด ลองเลือกอีกครั้ง (−3 คะแนน)`,
+      "bad"
+    );
+
+    // ให้เลือกใหม่ในตำแหน่งเดิมจนกว่าจะถูก
+    return;
+  }
+
+  const oldValue = values[selectStart];
+
+  // นำค่าต่ำสุดไปไว้ตำแหน่งแรกของส่วนที่ยังไม่เรียง
+  [values[selectStart], values[index]] =
+    [values[index], values[selectStart]];
+
+  score += 10;
+
+  const message = index === selectStart
+    ? `ถูกต้อง! ${minimum} อยู่ในตำแหน่งที่เหมาะสมแล้ว +10 คะแนน`
+    : `เยี่ยม! เลือก ${minimum} และสลับกับ ${oldValue} +10 คะแนน`;
+
+  selectStart++;
+
+  // เมื่อเรียงครบแล้ว ให้จบด่าน
+  if (selectStart >= values.length - 1) {
+    setFeedback(message, "good");
+    updateStats();
+    finishLevel();
+    return;
+  }
+
+  setFeedback(message, "good");
+  updateStats();
+  renderControls();
+}
+
+// จบด่านสำเร็จและให้คะแนนโบนัส
+function finishLevel() {
+  if (done) return;
+
+  done = true;
+  score += 20; // โบนัสผ่านด่าน
+
+  // บันทึกผลเฉพาะด่านที่ผ่านสำเร็จ
+  levelScores.push({
+    name: LEVELS[levelIndex].name,
+    score: score - levelStartScore,
+    mistakes: mistakes
+  });
+
+  $("progressBar").style.width =
+    `${(levelIndex + 1) / LEVELS.length * 100}%`;
+
+  renderControls();
+
+  // ต้องตอบคำถามโบนัสก่อนจึงไปด่านถัดไปได้
+  $("nextBtn").classList.add("hidden");
+  $("resetBtn").disabled = true;
+
+  $("bonusArea").classList.remove("hidden");
+  $("bonusFeedback").textContent = "เลือกคำตอบหนึ่งข้อ แล้วกดยืนยันได้เลย";
+
+  updateStats();
+
+  setFeedback(
+    `🎉 สำเร็จ! ${values.join(" → ")} เรียงจากน้อยไปมากแล้ว โบนัสผ่านด่าน +20 คะแนน`,
+    "good"
+  );
+}
+
+// เลือกคำตอบโบนัส
+function chooseBonus(choice) {
+  if (bonusAnswered) return;
+
+  bonusChoice = choice;
+
+  const buttons = {
+    bubble: $("bonusBubbleBtn"),
+    selection: $("bonusSelectionBtn"),
+    insertion: $("bonusInsertionBtn")
+  };
+
+  Object.entries(buttons).forEach(([key, button]) => {
+    button.className = key === choice ? "primary" : "soft";
+  });
+}
+
+// ตรวจคำตอบโบนัสท้ายด่าน
+function submitBonus() {
+  if (bonusAnswered) return;
+
+  if (!bonusChoice) {
+    $("bonusFeedback").textContent = "เลือกคำตอบก่อนนะ ✨";
+    return;
+  }
+
+  bonusAnswered = true;
+
+  const correct = LEVELS[levelIndex].algo;
+  const isCorrect = bonusChoice === correct;
+
+  ["bonusBubbleBtn", "bonusSelectionBtn", "bonusInsertionBtn"].forEach(id => {
+    $(id).disabled = true;
+  });
+
+  $("submitBonusBtn").disabled = true;
+
+  const explanation = correct === "bubble"
+    ? "Bubble Sort เปรียบเทียบข้อมูลที่อยู่ติดกัน และสลับเมื่อค่าทางซ้ายมากกว่าค่าทางขวา"
+    : "Selection Sort เลือกค่าต่ำที่สุดจากส่วนที่ยังไม่เรียง แล้วนำไปไว้ตำแหน่งถัดไป";
+
+  if (isCorrect) {
+    score += 10;
+    totalBonus += 10;
+
+    // เพิ่มคะแนนโบนัสในผลของด่านปัจจุบัน
+    levelScores[levelScores.length - 1].score += 10;
+
+    $("bonusFeedback").textContent =
+      `🎉 ตอบถูก! +10 คะแนน · ${explanation}`;
+
+    $("bonusFeedback").style.color = "#276c50";
+  } else {
+    $("bonusFeedback").textContent =
+      `ไม่เป็นไร ไม่เสียคะแนนนะ 💜 เฉลย: ${
+        correct === "bubble" ? "Bubble Sort" : "Selection Sort"
+      } · ${explanation}`;
+
+    $("bonusFeedback").style.color = "#624a89";
+  }
+
+  $("submitBonusBtn").classList.add("hidden");
+  $("nextBtn").classList.remove("hidden");
+
+  updateStats();
+}
+
+// เชื่อมปุ่มคำตอบโบนัส
+$("bonusBubbleBtn").addEventListener("click", () => chooseBonus("bubble"));
+$("bonusSelectionBtn").addEventListener("click", () => chooseBonus("selection"));
+$("bonusInsertionBtn").addEventListener("click", () => chooseBonus("insertion"));
+$("submitBonusBtn").addEventListener("click", submitBonus);
+
+// ไปด่านถัดไป หรือแสดงหน้าชนะเมื่อผ่านครบทุกด่าน
+function nextLevel() {
+  if (levelIndex < LEVELS.length - 1) {
+    levelIndex++;
+    loadLevel();
+  } else {
+    showEnd("win");
+  }
+}
+
+// รวมคะแนนเฉพาะด่านที่ผ่านแล้ว
+function getPassedScore() {
+  return levelScores.reduce((sum, level) => sum + level.score, 0);
+}
+
+// จบเกมเมื่อตัวละครหัวใจหมด
+function failGame() {
+  // ไม่บันทึกคะแนนของด่านที่ยังเล่นไม่ผ่าน
+  score = getPassedScore();
+  showEnd("failed");
+}
+
+// แสดงหน้าสรุปผล: ชนะ ล้มเหลว หรือออกกลางคัน
+function showEnd(mode = "win") {
+  $("gameScreen").classList.add("hidden");
+  $("endScreen").classList.remove("hidden");
+
+  // ใช้เฉพาะคะแนนของด่านที่ผ่านสำเร็จแล้ว
+  score = getPassedScore();
+  $("finalScore").textContent = score;
+
+  // แสดงผลคะแนนรายด่าน
+  $("levelResults").innerHTML = levelScores.map((level, i) => `
+    <div>
+      <span>⭐ ${i + 1}. ${level.name}</span>
+      <strong>${level.score} คะแนน</strong>
+    </div>
+  `).join("");
+
+  // ปรับหัวข้อและข้อความให้ตรงกับสาเหตุที่จบเกม
+  if (mode === "failed") {
+    $("endEmoji").textContent = "💔";
+    $("endEyebrow").textContent = "POTION LAB FAILED";
+    $("endTitle").textContent = "หัวใจหมดแล้ว!";
+    $("endMessage").textContent =
+      "การปรุงยาครั้งนี้ล้มเหลว ลองฝึกฝนแล้วกลับมาใหม่อีกครั้งนะ";
+  } else if (mode === "quit") {
+    $("endEmoji").textContent = "🧪";
+    $("endEyebrow").textContent = "ADVENTURE SUMMARY";
+    $("endTitle").textContent = "ออกจากการผจญภัย";
+    $("endMessage").textContent =
+      "นี่คือผลจากด่านที่ผ่านสำเร็จก่อนออกจากเกม";
+  } else {
+    $("endEmoji").textContent = "🏆";
+    $("endEyebrow").textContent = "POTION MASTER CERTIFIED";
+    $("endTitle").textContent = "ปรุงโพชั่นสำเร็จแล้ว!";
+    $("endMessage").textContent = "เธอผ่านครบทั้ง 4 ภารกิจแล้ว";
+  }
+
+  // แสดงระดับผู้เล่นตามคะแนนที่นับได้
+  $("rankText").textContent = score >= 250
+    ? "ระดับ: Grand Potion Master ✨"
+    : score >= 170
+      ? "ระดับ: นักปรุงยาฝีมือดี 🌟"
+      : "ระดับ: Apprentice Alchemist 🧙 — ลองฝึกอีกครั้งนะ!";
+}
+
+// ออกจากเกมโดยถามยืนยันก่อน
+function exitGame() {
+  const confirmed = confirm(
+    "ต้องการออกจากเกมหรือไม่?\n\n" +
+    "ความคืบหน้าของด่านปัจจุบันจะหายไป " +
+    "และจะไม่สามารถกลับมาเล่นต่อได้\n\n" +
+    "คะแนนและดาวจะนับเฉพาะด่านที่ผ่านแล้ว"
+  );
+
+  // หากยกเลิก ให้กลับไปเล่นต่อได้ตามเดิม
+  if (!confirmed) return;
+
+  // หากยืนยันออก ให้แสดงผลเฉพาะด่านที่ผ่านแล้ว
+  showEnd("quit");
+}
+
+// เริ่มด่านปัจจุบันใหม่ โดยคืนคะแนนของด่านนี้
+function resetLevel() {
+  score = levelStartScore;
+  loadLevel();
+}
+
+// เชื่อมปุ่มต่าง ๆ ของเกม
+$("startBtn").addEventListener("click", startGame);
+$("resetBtn").addEventListener("click", resetLevel);
+$("nextBtn").addEventListener("click", nextLevel);
+$("exitBtn").addEventListener("click", exitGame);
+$("playAgainBtn").addEventListener("click", startGame);
+
+// กลับไปหน้าเริ่มเกม
+$("reviewBtn").addEventListener("click", () => {
+  $("endScreen").classList.add("hidden");
+  $("startScreen").classList.remove("hidden");
+});
+</script>
+</body>
+</html>
